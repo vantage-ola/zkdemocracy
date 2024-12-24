@@ -1,0 +1,8 @@
+-- AddForeignKey
+ALTER TABLE "Member" ADD CONSTRAINT "Member_groupsId_fkey" FOREIGN KEY ("groupsId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Vote" ADD CONSTRAINT "Vote_groupsId_fkey" FOREIGN KEY ("groupsId") REFERENCES "Group"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Vote" ADD CONSTRAINT "Vote_votingsId_fkey" FOREIGN KEY ("votingsId") REFERENCES "Voting"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

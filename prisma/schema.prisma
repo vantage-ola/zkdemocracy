@@ -14,19 +14,23 @@ datasource db {
 }
 
 model Group {
-  id       Int      @id @default(autoincrement())
-  uuid     String   @unique
+  id       Int       @id @default(autoincrement())
+  uuid     String    @unique
   name     String
   creator  String
-  created  DateTime @default(now())
+  created  DateTime  @default(now())
+  members  Member[]  @relation("GroupMembers")
+  votes    Vote[]    @relation("GroupVotes")
 }
 
+
 model Voting {
-  id       Int      @id @default(autoincrement())
-  uuid     String   @unique
+  id       Int       @id @default(autoincrement())
+  uuid     String    @unique
   name     String
   creator  String
-  created  DateTime @default(now())
+  created  DateTime  @default(now())
+  votes    Vote[]    @relation("VotingVotes")
 }
 
 model VotingGroup {
@@ -55,6 +59,7 @@ model Member {
   proof          String?
   creator        String
   created        DateTime @default(now())
+  group          Group    @relation("GroupMembers", fields: [groupsId], references: [id])
   @@unique([groupsId, identityHash])
 }
 
@@ -68,6 +73,8 @@ model Vote {
   vote           String
   checkpointHash String
   created        DateTime @default(now())
+  group          Group    @relation("GroupVotes", fields: [groupsId], references: [id])
+  voting         Voting   @relation("VotingVotes", fields: [votingsId], references: [id])
   @@unique([groupsId, votingsId, nullifier])
 }
 
