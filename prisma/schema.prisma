@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id       Int      @id @default(autoincrement())
+  uuid     String   @unique
+  name     String
+  creator  String
+  created  DateTime @default(now())
+}
+
+model Voting {
+  id       Int      @id @default(autoincrement())
+  uuid     String   @unique
+  name     String
+  creator  String
+  created  DateTime @default(now())
+}
+
+model VotingGroup {
+  votingsId Int
+  groupsId  Int
+  creator   String
+  created   DateTime @default(now())
+  @@id([votingsId, groupsId])
+}
+
+model GroupAdmin {
+  groupsId Int
+  admin    String
+  creator  String
+  created  DateTime @default(now())
+  @@id([groupsId, admin])
+}
+
+model Member {
+  id             Int      @id @default(autoincrement())
+  groupsId       Int
+  commitment     String
+  identityHash   String
+  merkleRoot     String
+  checkpointHash String
+  proof          String?
+  creator        String
+  created        DateTime @default(now())
+  @@unique([groupsId, identityHash])
+}
+
+model Vote {
+  id             Int      @id @default(autoincrement())
+  votingsId      Int
+  groupsId       Int
+  nullifier      String
+  merkleRoot     String
+  proof          String
+  vote           String
+  checkpointHash String
+  created        DateTime @default(now())
+  @@unique([groupsId, votingsId, nullifier])
+}
+
+model Nonce {
+  address String @id
+  nonce   Int    @default(0)
+}
