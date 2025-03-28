@@ -8,6 +8,10 @@ export async function addGroup(name: string, creator: string) {
     await runQuery("INSERT INTO `groups` (uuid, name, creator) VALUES (?, ?, ?)", [uuid, name, creator])
     return uuid
 }
+export async function listGroups() {
+    const rows = await runQuery("SELECT uuid, name, creator, created FROM `groups` ORDER BY id");
+    return rows;
+}
 
 export async function addGroupAdmin(uuid: string, admin: string, creator: string) {
     if (!isAddress(admin))

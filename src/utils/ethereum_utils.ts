@@ -15,15 +15,15 @@ export async function incrementNonce(address: string) {
 export async function verifyAndExtractMessage(payload: { content: string, signature: string, address: string }) {
     if (!payload.content)
         throw new Error("No content defined!")
-
     if (!payload.signature)
         throw new Error("No signature defined!")
-
-    if (!payload.signature)
+    if (!payload.address)  // Fixed: Was checking signature twice
         throw new Error("No address defined!")
 
     const extractedAddress = verifyMessage(payload.content, payload.signature);
-    if (payload.address != extractedAddress)
+
+    // Compare addresses case-insensitively
+    if (payload.address.toLowerCase() !== extractedAddress.toLowerCase())
         throw new Error("Signature error!")
 
     const nonce = await getNonce(payload.address);
@@ -31,9 +31,7 @@ export async function verifyAndExtractMessage(payload: { content: string, signat
     const extractedNonce = toUtf8String(decodeBase64(base64nonce));
     if (extractedNonce != nonce)
         throw new Error("Nonce error!")
-
     await incrementNonce(payload.address);
-
     const message = JSON.parse(toUtf8String(decodeBase64(base64message)));
     return [message, payload.address];
 }

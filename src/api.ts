@@ -2,8 +2,8 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { Wallet } from "ethers";
 import { signMessageWithNonce, verifyAndExtractMessage, getNonce } from "../src/utils/ethereum_utils"
 import { HttpError } from "../src/utils/error_utils"
-import { addGroup, addGroupAdmin, addMemberToGroup, listGroupMembers, getGroupForUUID, generateMerkleProof, getGroupCheckpointHash } from "../src/services/group_management_service"
-import { addVoting, assignVotingToGroup, addVote, listVotes, getVotesCheckpointHash } from "../src/services/voting_management_service"
+import { addGroup, addGroupAdmin, addMemberToGroup, listGroupMembers, getGroupForUUID, generateMerkleProof, getGroupCheckpointHash, listGroups } from "../src/services/group_management_service"
+import { listAllVotes, addVoting, assignVotingToGroup, addVote, listVotes, getVotesCheckpointHash } from "../src/services/voting_management_service"
 
 import './utils/env_utils'
 
@@ -29,7 +29,7 @@ async function verifySignatureMiddleware(req: Request, res: Response, next: Next
     }
 }
 
-// sign server response 
+// sign server response
 const server_wallet = new Wallet(process.env.SERVER_PRIVATE_KEY)
 const server_address = server_wallet.address
 
@@ -53,8 +53,16 @@ api.get('/nonces/:address', asyncHandler(async (req: Request, res: Response) => 
     })
 }))
 
+api.get('/groups', asyncHandler(async (req: Request, res: Response) => {
+    const groups = await listGroups();
+    res.send({
+        groups,
+        timestamp: new Date().toISOString()
+    });
+}));
+
 api.post('/groups/add', verifySignatureMiddleware, asyncHandler(async (req: Request, res: Response) => {
-    if (req.body.extractedAddress != process.env.ADMIN_ADDRESS)
+    if (req.body.extractedAddress.toLowerCase() != process.env.ADMIN_ADDRESS.toLowerCase())
         throw new HttpError(403, 'Only admin is allowed to add groups!');
 
     const group_name = req.body.extractedMessage.group_name
@@ -70,7 +78,7 @@ api.post('/groups/add', verifySignatureMiddleware, asyncHandler(async (req: Requ
 
 
 api.post('/groups/:group_uuid/admins/add', verifySignatureMiddleware, asyncHandler(async (req: Request, res: Response) => {
-    if (req.body.extractedAddress != process.env.ADMIN_ADDRESS)
+    if (req.body.extractedAddress.toLowerCase() != process.env.ADMIN_ADDRESS.toLowerCase())
         throw new HttpError(403, 'Only admin is allowed to add group admins!');
 
     const group_uuid = req.params.group_uuid
@@ -86,7 +94,7 @@ api.post('/groups/:group_uuid/admins/add', verifySignatureMiddleware, asyncHandl
 }))
 
 api.post('/votings/add', verifySignatureMiddleware, asyncHandler(async (req: Request, res: Response) => {
-    if (req.body.extractedAddress != process.env.ADMIN_ADDRESS)
+    if (req.body.extractedAddress.toLowerCase() != process.env.ADMIN_ADDRESS.toLowerCase())
         throw new HttpError(403, 'Only admin is allowed to add votings!');
 
     const voting_name = req.body.extractedMessage.voting_name
@@ -101,7 +109,7 @@ api.post('/votings/add', verifySignatureMiddleware, asyncHandler(async (req: Req
 }))
 
 api.post('/votings/:voting_uuid/groups/add', verifySignatureMiddleware, asyncHandler(async (req: Request, res: Response) => {
-    if (req.body.extractedAddress != process.env.ADMIN_ADDRESS)
+    if (req.body.extractedAddress.toLowerCase() != process.env.ADMIN_ADDRESS.toLowerCase())
         throw new HttpError(403, 'Only admin is allowed to assign groups to votings!');
 
     const group_uuid = req.body.extractedMessage.group_uuid
@@ -117,7 +125,7 @@ api.post('/votings/:voting_uuid/groups/add', verifySignatureMiddleware, asyncHan
 }))
 
 api.post('/groups/:group_uuid/members/add', verifySignatureMiddleware, asyncHandler(async (req: Request, res: Response) => {
-    if (req.body.extractedAddress != process.env.ADMIN_ADDRESS)
+    if (req.body.extractedAddress.toLowerCase() != process.env.ADMIN_ADDRESS.toLowerCase())
         throw new HttpError(403, 'Only admin is allowed to assign groups to votings!');
 
     const group_uuid = req.params.group_uuid;
@@ -170,6 +178,14 @@ api.get('/groups/:group_uuid/members/:commitment/merkle_proof', asyncHandler(asy
     const merkle_proof = await generateMerkleProof(group_uuid, commitment)
     res.send({ merkle_proof })
 }))
+
+api.get('/votings', asyncHandler(async (req: Request, res: Response) => {
+    const votings = await listAllVotes();
+    res.send({
+        votings,
+        timestamp: new Date().toISOString()
+    });
+}));
 
 api.post('/votings/:voting_uuid/vote', asyncHandler(async (req: Request, res: Response) => {
     const voting_uuid = req.params.voting_uuid
