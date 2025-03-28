@@ -234,7 +234,7 @@ describe("Testing the API", () => {
     })
 
     test("Cast votes", async () => {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 10; i++) {    // probably fail coz of timeout error
             const merkle_proof_res = await request(api).get(`/groups/${group_uuid}/members/${identity_list[i].commitment}/merkle_proof`)
             const merkle_proof = merkle_proof_res.body.merkle_proof
             const scope = uuidToHex(voting_uuid)
