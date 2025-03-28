@@ -53,6 +53,11 @@ export async function listVotes(voting_uuid: string) {
     return rows
 }
 
+export async function listAllVotes() {
+    const rows = await runQuery("SELECT uuid, name, creator, created FROM `votings` ORDER BY id");
+    return rows;
+}
+
 export async function getVotesCheckpointHash(voting_uuid: string) {
     const rows = await runQuery("SELECT checkpoint_hash FROM `votes` v JOIN `votings` vo ON v.votings_id = vo.id WHERE vo.uuid = ? ORDER BY v.id DESC LIMIT 1", [voting_uuid])
     return rows.length > 0 ? rows[0].checkpoint_hash : 0;

@@ -4,8 +4,8 @@ import { Wallet, verifyMessage, encodeBase64, toUtf8Bytes, decodeBase64, toUtf8S
 import { signMessageWithNonce, verifyAndExtractMessage, getNonce } from "../src/utils/ethereum_utils"
 import { pool } from "../src/utils/db_utils"
 
-const ADMIN_ADDRESS = "0x1C7bcE0821f78F952308F222E5d911312CA10400";
-const ADMIN_PRIVATE_KEY = "0xb16ee57cb3c497cab8aebf284ac19bb594f7a253077c3b0c15fc8ba44b6325a5";
+const ADMIN_ADDRESS = "0x1a67b91acE32823a75da86104E8931cc94f2C9D8";
+const ADMIN_PRIVATE_KEY = "0x4eebc178b279a5f094030be6fca77ae39e664e1f54a79aece4372347f0a8cb4f";
 
 describe("Testing Ethereum signing and verification", () => {
 
