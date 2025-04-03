@@ -31,6 +31,7 @@
     "@metamask/eth-sig-util": "^7.0.3",
     "@semaphore-protocol/core": "^4.0.3",
     "dotenv": "^16.4.5",
+    "eciesjs": "^0.4.14",
     "ethers": "^6.13.2",
     "express": "^4.19.2",
     "mysql2": "^3.11.0",

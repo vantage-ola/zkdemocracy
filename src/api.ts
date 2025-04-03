@@ -4,6 +4,7 @@ import { signMessageWithNonce, verifyAndExtractMessage, getNonce } from "../src/
 import { HttpError } from "../src/utils/error_utils"
 import { addGroup, addGroupAdmin, addMemberToGroup, listGroupMembers, getGroupForUUID, generateMerkleProof, getGroupCheckpointHash, listGroups } from "../src/services/group_management_service"
 import { listAllVotes, addVoting, assignVotingToGroup, addVote, listVotes, getVotesCheckpointHash } from "../src/services/voting_management_service"
+import { getOrCreateUserIdentity, getUserIdentity } from './services/user_identity_service';
 
 import './utils/env_utils'
 
@@ -221,6 +222,50 @@ api.get('/votings/:voting_uuid/checkpoint_hash', asyncHandler(async (req: Reques
         timestamp: new Date().toISOString()
     }))
 }))
+
+/**
+ * Get a user's identity commitment
+ * GET /users/:address/identity
+ */
+api.get('/users/:address/identity', asyncHandler(async(req: Request, res: Response) => {
+    const address = req.params.address;
+
+    if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
+        return res.status(400).json({ error: 'Invalid Ethereum address' });
+    }
+
+    const identity = await getUserIdentity(address);
+
+    if(!identity) {
+        return res.status(404).json({error: 'Identity not Found'})
+    }
+
+    const {encryptedPrivateKey, salt, commitment } = identity;
+
+    res.send(await signResponse({
+        address,
+        encryptedPrivateKey,
+        salt,
+        commitment
+    }))
+}))
+
+/**
+ * POST /users/:address/identity
+ * Requires admin**
+ */
+api.post('/users/:address/identity', asyncHandler(async(req: Request, res: Response) =>{
+
+    const address = req.params.address;
+    const { encryptedPrivateKey, salt, commitment } = await getOrCreateUserIdentity(address);
+
+    res.send(await signResponse({
+      address,
+      encryptedPrivateKey,
+      salt,
+      commitment,
+    }));
+  }))
 
 api.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof HttpError) {

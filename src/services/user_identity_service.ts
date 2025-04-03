@@ -34,8 +34,9 @@ export async function createUserIdentity(address: string): Promise<{ encryptedPr
 	// Encrypt the private key
   	//had issues with encrypting the private key
 	//const encryptedPrivateKey = encrypt(privateKey, encryptionKey.slice(2)); // Remove 0x prefix
+
   	const encryptedPrivateKey = privateKey;
-	// ideally we should encrypt this privateKey, so we can decrypt it on the client side
+	// ideally I should encrypt this privateKey, so we can decrypt it on the client side
 
 	const commitment = identity.commitment.toString();
 
